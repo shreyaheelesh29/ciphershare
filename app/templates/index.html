@@ -1,0 +1,471 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="fade-in">
+    <!-- Header Stats -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="card p-3 border-0 bg-primary bg-opacity-10">
+                <div class="d-flex align-items-center">
+                    <div class="bg-primary text-white p-3 rounded-3 me-3">
+                        <i class="fas fa-file-shield fs-4"></i>
+                    </div>
+                    <div>
+                        <h6 class="mb-0 text-muted small">Encryption</h6>
+                        <p class="mb-0 fw-bold">AES-256 GCM</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card p-3 border-0 bg-success bg-opacity-10">
+                <div class="d-flex align-items-center">
+                    <div class="bg-success text-white p-3 rounded-3 me-3">
+                        <i class="fas fa-key fs-4"></i>
+                    </div>
+                    <div>
+                        <h6 class="mb-0 text-muted small">Key Exchange</h6>
+                        <p class="mb-0 fw-bold">RSA-2048 OAEP</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card p-3 border-0 bg-info bg-opacity-10">
+                <div class="d-flex align-items-center">
+                    <div class="bg-info text-white p-3 rounded-3 me-3">
+                        <i class="fas fa-shield-halved fs-4"></i>
+                    </div>
+                    <div>
+                        <h6 class="mb-0 text-muted small">Status</h6>
+                        <p class="mb-0 fw-bold">🔐 End-to-End Encrypted</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-5">
+        <div class="col-12">
+            <div id="drop-zone" class="card p-5 border-0 text-center">
+                <div class="d-flex flex-column align-items-center mb-4">
+                    <div class="bg-success bg-opacity-10 p-4 rounded-circle mb-3">
+                        <i class="fas fa-cloud-arrow-up text-success fs-1"></i>
+                    </div>
+                    <h2 class="h4 mb-2 fw-bold">📁 Secure File Dropzone</h2>
+                    <p class="text-muted mb-0">Drag and drop files here or click below to upload</p>
+                </div>
+                <form id="upload-form" action="{{ url_for('file.upload') }}" method="POST" enctype="multipart/form-data">
+                    <input type="file" id="file-input" name="file" class="d-none" required>
+                    <button type="button" class="btn btn-success px-5 py-3 shadow-sm rounded-pill" onclick="document.getElementById('file-input').click()">
+                        <i class="fas fa-plus me-2"></i> Choose File & Encrypt
+                    </button>
+                    <div id="upload-progress-container" class="mt-4 d-none" style="max-width: 400px; margin: 0 auto;">
+                        <div class="progress rounded-pill shadow-sm" style="height: 10px;">
+                            <div id="upload-progress-bar" class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar" style="width: 0%"></div>
+                        </div>
+                        <p id="upload-status-text" class="text-muted small mt-2 fw-bold">Encrypting & Uploading... <span id="progress-percent">0%</span></p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-12">
+            <div class="card p-4 border-0">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                    <h3 class="h5 mb-0 fw-bold">🔎 Filter & Search</h3>
+                    <div class="input-group" style="max-width: 400px;">
+                        <span class="input-group-text bg-light border-0"><i class="fas fa-search text-muted"></i></span>
+                        <input type="text" id="fileSearch" class="form-control bg-light border-0" placeholder="Search by file name..." onkeyup="filterFiles()">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- My Files Section -->
+        <div class="col-lg-8">
+            <div class="card h-100 p-4 border-0">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3 class="h5 mb-0 fw-bold">📂 My Files</h3>
+                    <span class="badge bg-light text-dark rounded-pill">{{ my_files|length }} files</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle" id="filesTable">
+                        <thead class="text-muted small text-uppercase">
+                            <tr>
+                                <th>Name</th>
+                                <th>Security</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="border-top-0">
+                            {% for f in my_files %}
+                            <tr class="file-row">
+                                <td class="file-name-cell">
+                                    <div class="d-flex align-items-center">
+                                        {% set ext = f.original_name.split('.')[-1].lower() %}
+                                        <div class="me-3 fs-4">
+                                            {% if ext in ['pdf', 'doc', 'docx', 'txt'] %}
+                                                <i class="fas fa-file-pdf text-danger"></i>
+                                            {% elif ext in ['jpg', 'jpeg', 'png', 'gif'] %}
+                                                <i class="fas fa-file-image text-warning"></i>
+                                            {% elif ext in ['xls', 'xlsx', 'csv'] %}
+                                                <i class="fas fa-file-excel text-success"></i>
+                                            {% else %}
+                                                <i class="fas fa-file-lines text-primary"></i>
+                                            {% endif %}
+                                        </div>
+                                        <div class="overflow-hidden">
+                                            <span class="fw-medium text-dark d-block text-truncate file-name-text" style="max-width: 250px;">{{ f.original_name }}</span>
+                                            <span class="text-muted x-small">{{ f.upload_date.strftime('%b %d, %Y') }}</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge badge-aes security-badge" style="font-size: 0.65rem;">🔒 AES-256</span>
+                                </td>
+                                <td class="text-end">
+                                    <div class="btn-group shadow-sm">
+                                        <button type="button" class="btn btn-sm btn-light border-end" onclick="previewFile({{ f.id }}, '{{ f.original_name }}')" title="Preview">
+                                            <i class="fas fa-eye text-info"></i>
+                                        </button>
+                                        <a href="{{ url_for('file.download', file_id=f.id) }}" class="btn btn-sm btn-light border-end" title="Download">
+                                            <i class="fas fa-download text-primary"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-light" data-bs-toggle="modal" data-bs-target="#shareModal{{ f.id }}" title="Share">
+                                            <i class="fas fa-link text-success"></i>
+                                        </button>
+                                    </div>
+
+                                    <!-- Share Modal -->
+                                    <div class="modal fade" id="shareModal{{ f.id }}" tabindex="-1">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content border-0 shadow-lg rounded-4">
+                                                <div class="modal-header border-0 pb-0">
+                                                    <h5 class="modal-title fw-bold">🔗 Share File</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <form action="{{ url_for('file.share', file_id=f.id) }}" method="POST">
+                                                    <div class="modal-body py-4">
+                                                        <div class="mb-4">
+                                                            <label class="form-label fw-semibold small text-uppercase text-muted">Shareable Link</label>
+                                                            <div class="input-group">
+                                                                <input type="text" id="shareLink{{ f.id }}" class="form-control bg-light border-0 small" readonly value="https://ciphershare.com/file/{{ f.filename[:8] }}">
+                                                                <button class="btn btn-outline-secondary border-0 bg-light" type="button" onclick="copyShareLink('{{ f.id }}')">
+                                                                    <i class="fas fa-copy" id="copyIcon{{ f.id }}"></i>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="form-label fw-semibold">👥 Share with User</label>
+                                                            <select name="username" class="form-select border-0 bg-light py-2" required>
+                                                                <option value="" disabled selected>Select a user...</option>
+                                                                {% for user in all_users %}
+                                                                    <option value="{{ user.username }}">{{ user.username }}</option>
+                                                                {% endfor %}
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer border-0 pt-0">
+                                                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                                                        <button type="submit" class="btn btn-success px-4">Grant Access</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="3" class="text-center py-5 text-muted">
+                                    <i class="fas fa-box-open d-block mb-3 fs-1 opacity-25"></i>
+                                    No secure files found.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity & Shared Section -->
+        <div class="col-lg-4">
+            <div class="card p-4 border-0 mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3 class="h5 mb-0 fw-bold">📊 Activity Log</h3>
+                    <i class="fas fa-clock-rotate-left text-muted"></i>
+                </div>
+                <div class="list-group list-group-flush border-0">
+                    {% for activity in activities %}
+                    <div class="list-group-item px-0 py-2 border-0">
+                        <div class="d-flex">
+                            <div class="me-2 mt-1">
+                                {% if activity.action == 'Upload' %}
+                                    <i class="fas fa-circle-up text-success x-small"></i>
+                                {% elif activity.action == 'Download' %}
+                                    <i class="fas fa-circle-down text-primary x-small"></i>
+                                {% elif activity.action == 'Share' %}
+                                    <i class="fas fa-circle-nodes text-warning x-small"></i>
+                                {% endif %}
+                            </div>
+                            <div class="overflow-hidden">
+                                <p class="mb-0 small text-dark fw-medium">{{ activity.details }}</p>
+                                <span class="text-muted x-small">{{ activity.timestamp.strftime('%H:%M • %b %d') }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <p class="text-center py-3 text-muted small">No recent activity.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="card p-4 border-0">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3 class="h5 mb-0 fw-bold">👥 Shared Files</h3>
+                    <span class="badge bg-light text-dark rounded-pill">{{ shared_files|length }}</span>
+                </div>
+                <div class="list-group list-group-flush border-0">
+                    {% for p in shared_files %}
+                    <div class="list-group-item px-0 py-3 border-0">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-primary bg-opacity-10 p-2 rounded-3 me-3 text-primary">
+                                <i class="fas fa-file-shield"></i>
+                            </div>
+                            <div class="flex-grow-1 overflow-hidden">
+                                <h6 class="mb-0 fw-bold text-truncate small">{{ p.file.original_name }}</h6>
+                                <p class="mb-0 x-small text-muted">From: <span class="fw-medium text-success">{{ p.file.owner.username }}</span></p>
+                            </div>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-sm btn-outline-info rounded-start-pill px-3" onclick="previewFile({{ p.file.id }}, '{{ p.file.original_name }}')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <a href="{{ url_for('file.download', file_id=p.file.id) }}" class="btn btn-sm btn-outline-primary rounded-end-pill px-3">
+                                    <i class="fas fa-download me-1"></i> Get
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5 text-muted">
+                        <i class="fas fa-share-nodes d-block mb-3 fs-1 opacity-25"></i>
+                        No shared files.
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Preview Modal -->
+<div class="modal fade" id="previewModal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="modal-header border-0 bg-dark text-white py-3">
+                <h5 class="modal-title fw-bold d-flex align-items-center">
+                    <i class="fas fa-shield-halved text-success me-2"></i>
+                    <span id="preview-filename">File Preview</span>
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0 bg-light d-flex align-items-center justify-content-center" style="min-height: 400px; max-height: 80vh;">
+                <div id="preview-loading" class="text-center p-5">
+                    <div class="spinner-border text-primary mb-3" role="status"></div>
+                    <p class="text-muted fw-bold">Decrypting secure content...</p>
+                </div>
+                <div id="preview-content" class="w-100 h-100 d-none">
+                    <!-- Preview will be injected here -->
+                </div>
+            </div>
+            <div class="modal-footer border-0 bg-light py-2 px-4 d-flex justify-content-between">
+                <span class="badge badge-aes security-badge">🔒 End-to-End Encrypted Preview</span>
+                <button type="button" class="btn btn-primary btn-sm rounded-pill px-4" data-bs-dismiss="modal">Close Preview</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Drag and Drop implementation
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('file-input');
+
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, preventDefaults, false);
+    });
+
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropZone.addEventListener(eventName, () => dropZone.classList.add('dragover'), false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, () => dropZone.classList.remove('dragover'), false);
+    });
+
+    dropZone.addEventListener('drop', handleDrop, false);
+
+    function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        if (files.length > 0) {
+            uploadFile(files[0]);
+        }
+    }
+
+    fileInput.addEventListener('change', () => {
+        if (fileInput.files.length > 0) {
+            uploadFile(fileInput.files[0]);
+        }
+    });
+
+    function uploadFile(file) {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const xhr = new XMLHttpRequest();
+        const progressContainer = document.getElementById('upload-progress-container');
+        const progressBar = document.getElementById('upload-progress-bar');
+        const progressPercent = document.getElementById('progress-percent');
+        const uploadBtn = document.querySelector('.btn-success');
+
+        progressContainer.classList.remove('d-none');
+        uploadBtn.disabled = true;
+        uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Uploading...';
+
+        xhr.upload.addEventListener('progress', (e) => {
+            if (e.lengthComputable) {
+                const percent = Math.round((e.loaded / e.total) * 100);
+                progressBar.style.width = percent + '%';
+                progressPercent.innerText = percent + '%';
+                
+                if (percent === 100) {
+                    document.getElementById('upload-status-text').innerHTML = '<i class="fas fa-shield-halved text-success me-2"></i> Encrypting on Server...';
+                }
+            }
+        });
+
+        xhr.onreadystatechange = () => {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200 || xhr.status === 302) {
+                    window.location.reload();
+                } else {
+                    alert('Upload failed. Please try again.');
+                    progressContainer.classList.add('d-none');
+                    uploadBtn.disabled = false;
+                    uploadBtn.innerHTML = '<i class="fas fa-plus me-2"></i> Choose File & Encrypt';
+                }
+            }
+        };
+
+        xhr.open('POST', '{{ url_for("file.upload") }}', true);
+        xhr.send(formData);
+    }
+
+    // Client-side search implementation
+    function filterFiles() {
+        const input = document.getElementById('fileSearch');
+        const filter = input.value.toLowerCase();
+        const table = document.getElementById('filesTable');
+        const rows = table.getElementsByClassName('file-row');
+
+        for (let i = 0; i < rows.length; i++) {
+            const fileNameCell = rows[i].getElementsByClassName('file-name-text')[0];
+            if (fileNameCell) {
+                const textValue = fileNameCell.textContent || fileNameCell.innerText;
+                if (textValue.toLowerCase().indexOf(filter) > -1) {
+                    rows[i].style.display = "";
+                } else {
+                    rows[i].style.display = "none";
+                }
+            }
+        }
+    }
+
+    // Secure File Preview
+    function copyShareLink(fileId) {
+        const linkInput = document.getElementById('shareLink' + fileId);
+        const copyIcon = document.getElementById('copyIcon' + fileId);
+        
+        linkInput.select();
+        document.execCommand('copy');
+        
+        copyIcon.className = 'fas fa-check text-success';
+        setTimeout(() => {
+            copyIcon.className = 'fas fa-copy';
+        }, 2000);
+    }
+
+    function previewFile(fileId, filename) {
+        const modal = new bootstrap.Modal(document.getElementById('previewModal'));
+        const contentDiv = document.getElementById('preview-content');
+        const loadingDiv = document.getElementById('preview-loading');
+        const filenameSpan = document.getElementById('preview-filename');
+        
+        filenameSpan.innerText = filename;
+        contentDiv.innerHTML = '';
+        contentDiv.classList.add('d-none');
+        loadingDiv.classList.remove('d-none');
+        
+        modal.show();
+
+        const ext = filename.split('.').pop().toLowerCase();
+        const url = `/preview/${fileId}`;
+
+        if (['jpg', 'jpeg', 'png', 'gif', 'svg'].includes(ext)) {
+            const img = new Image();
+            img.onload = () => {
+                loadingDiv.classList.add('d-none');
+                contentDiv.classList.remove('d-none');
+            };
+            img.src = url;
+            img.className = 'img-fluid p-2';
+            img.style.maxHeight = '70vh';
+            contentDiv.appendChild(img);
+        } else if (ext === 'pdf') {
+            const iframe = document.createElement('iframe');
+            iframe.src = url;
+            iframe.className = 'w-100';
+            iframe.style.height = '70vh';
+            iframe.style.border = 'none';
+            iframe.onload = () => {
+                loadingDiv.classList.add('d-none');
+                contentDiv.classList.remove('d-none');
+            };
+            contentDiv.appendChild(iframe);
+        } else {
+            // Text or other files
+            fetch(url)
+                .then(response => response.text())
+                .then(text => {
+                    const pre = document.createElement('pre');
+                    pre.className = 'p-4 m-0 bg-white w-100';
+                    pre.style.maxHeight = '70vh';
+                    pre.style.overflow = 'auto';
+                    pre.innerText = text;
+                    loadingDiv.classList.add('d-none');
+                    contentDiv.classList.remove('d-none');
+                    contentDiv.appendChild(pre);
+                })
+                .catch(err => {
+                    contentDiv.innerHTML = `<div class="p-5 text-center text-danger">
+                        <i class="fas fa-circle-exclamation fs-1 mb-3"></i>
+                        <p>Preview not available for this file type.</p>
+                    </div>`;
+                    loadingDiv.classList.add('d-none');
+                    contentDiv.classList.remove('d-none');
+                });
+        }
+    }
+</script>
+{% endblock %}

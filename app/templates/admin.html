@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="fade-in">
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h2 class="fw-bold mb-1">🛡️ Admin Dashboard</h2>
+            <p class="text-muted mb-0">System-wide monitoring and management</p>
+        </div>
+        <div class="bg-primary bg-opacity-10 p-4 rounded-circle">
+            <i class="fas fa-user-shield text-primary fs-1"></i>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="card p-4 border-0 shadow-sm bg-primary bg-opacity-10">
+                <div class="d-flex align-items-center">
+                    <div class="bg-primary text-white p-3 rounded-3 me-3">
+                        <i class="fas fa-users fs-4"></i>
+                    </div>
+                    <div>
+                        <h6 class="mb-0 text-muted small fw-bold">Total Users</h6>
+                        <p class="mb-0 h3 fw-bold text-primary">{{ total_users }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card p-4 border-0 shadow-sm bg-success bg-opacity-10">
+                <div class="d-flex align-items-center">
+                    <div class="bg-success text-white p-3 rounded-3 me-3">
+                        <i class="fas fa-file-shield fs-4"></i>
+                    </div>
+                    <div>
+                        <h6 class="mb-0 text-muted small fw-bold">Total Files</h6>
+                        <p class="mb-0 h3 fw-bold text-success">{{ total_files }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card p-4 border-0 shadow-sm bg-info bg-opacity-10">
+                <div class="d-flex align-items-center">
+                    <div class="bg-info text-white p-3 rounded-3 me-3">
+                        <i class="fas fa-shield-halved fs-4"></i>
+                    </div>
+                    <div>
+                        <h6 class="mb-0 text-muted small fw-bold">System Status</h6>
+                        <p class="mb-0 h5 fw-bold text-info">Operational</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Users List -->
+        <div class="col-lg-5">
+            <div class="card p-4 border-0 h-100">
+                <h3 class="h5 fw-bold mb-4">👥 Registered Users</h3>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="text-muted small text-uppercase">
+                            <tr>
+                                <th>Username</th>
+                                <th>Joined</th>
+                                <th>Role</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in all_users %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-light p-2 rounded-circle me-2">
+                                            <i class="fas fa-user text-muted small"></i>
+                                        </div>
+                                        <span class="fw-bold small">{{ user.username }}</span>
+                                    </div>
+                                </td>
+                                <td class="text-muted x-small">{{ user.created_at.strftime('%b %d, %Y') }}</td>
+                                <td>
+                                    {% if user.is_admin %}
+                                        <span class="badge bg-danger rounded-pill x-small px-3">Admin</span>
+                                    {% else %}
+                                        <span class="badge bg-light text-dark rounded-pill x-small px-3">User</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Activity -->
+        <div class="col-lg-7">
+            <div class="card p-4 border-0 h-100">
+                <h3 class="h5 fw-bold mb-4">📜 Global Activity Audit</h3>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="text-muted small text-uppercase">
+                            <tr>
+                                <th>User</th>
+                                <th>Action</th>
+                                <th>Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for act in all_activities %}
+                            <tr>
+                                <td class="fw-bold small">{{ act.user.username }}</td>
+                                <td>
+                                    <span class="small text-muted">{{ act.details }}</span>
+                                </td>
+                                <td class="text-muted x-small">{{ act.timestamp.strftime('%H:%M • %b %d') }}</td>
+                            </tr>
+                            {% else %}
+                            <tr><td colspan="3" class="text-center py-4 text-muted small">No activity recorded.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
