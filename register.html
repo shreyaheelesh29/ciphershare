@@ -153,6 +153,16 @@
             background: rgba(47, 128, 237, 0.08);
         }
 
+        .auth-message {
+            display: none;
+            border-radius: 8px;
+            font-weight: 700;
+        }
+
+        .auth-message.show {
+            display: block;
+        }
+
         @media (max-width: 991.98px) {
             .auth-shell {
                 grid-template-columns: 1fr;
@@ -182,7 +192,8 @@
                 <h2 class="fw-bold mb-1">Create Account</h2>
                 <p class="text-muted mb-0">Start securing your files with RSA encryption</p>
             </div>
-            <form>
+            <form id="registerForm">
+                <div id="registerMessage" class="auth-message alert mb-3" role="alert"></div>
                 <div class="mb-3">
                     <label for="username" class="form-label fw-bold">Username</label>
                     <div class="input-group">
@@ -205,10 +216,10 @@
                         <li>At least one digit and special character</li>
                     </ul>
                 </div>
-                <button type="button" class="btn btn-cipher w-100 mb-3" onclick="window.location.href='login.html'">Register Account</button>
+                <button type="submit" class="btn btn-cipher w-100 mb-3">Register Account</button>
             </form>
             <div class="demo-note p-3 small mb-3">
-                This GitHub Pages register page is a static frontend preview. The Flask app creates real users when deployed with a backend.
+                Demo mode: this saves your test account in this browser only. The Flask backend is needed for real secure accounts.
             </div>
             <p class="text-center mt-3 text-muted mb-0">Already have an account? <a href="login.html" class="fw-bold text-decoration-none">Log in here</a></p>
         </section>
@@ -219,5 +230,54 @@
             <p>CipherShare pairs user accounts with encrypted private keys, file-level AES protection, and explicit access grants.</p>
         </section>
     </main>
+    <script>
+        const registerForm = document.getElementById('registerForm');
+        const registerMessage = document.getElementById('registerMessage');
+
+        function showMessage(message, type) {
+            registerMessage.textContent = message;
+            registerMessage.className = `auth-message alert alert-${type} show mb-3`;
+        }
+
+        function isStrongPassword(password) {
+            return password.length >= 5
+                && /[A-Z]/.test(password)
+                && /[a-z]/.test(password)
+                && /\d/.test(password)
+                && /[ !@#$%^&*(),.?":{}|<>]/.test(password);
+        }
+
+        registerForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+
+            if (!username) {
+                showMessage('Please enter a username.', 'danger');
+                return;
+            }
+
+            if (!isStrongPassword(password)) {
+                showMessage('Use 5+ characters with uppercase, lowercase, number, and special character.', 'danger');
+                return;
+            }
+
+            const users = JSON.parse(localStorage.getItem('cipherShareUsers') || '{}');
+            if (users[username]) {
+                showMessage('That username already exists in this browser. Please log in.', 'warning');
+                return;
+            }
+
+            users[username] = { password, createdAt: new Date().toISOString() };
+            localStorage.setItem('cipherShareUsers', JSON.stringify(users));
+            localStorage.setItem('cipherShareCurrentUser', username);
+            showMessage('Account created. Opening login...', 'success');
+
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 900);
+        });
+    </script>
 </body>
 </html>

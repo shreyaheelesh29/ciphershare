@@ -147,6 +147,16 @@
             background: rgba(47, 128, 237, 0.08);
         }
 
+        .auth-message {
+            display: none;
+            border-radius: 8px;
+            font-weight: 700;
+        }
+
+        .auth-message.show {
+            display: block;
+        }
+
         @media (max-width: 991.98px) {
             .auth-shell {
                 grid-template-columns: 1fr;
@@ -182,7 +192,8 @@
                 <h2 class="fw-bold mb-1">Welcome Back</h2>
                 <p class="text-muted mb-0">Securely access your encrypted files</p>
             </div>
-            <form>
+            <form id="loginForm">
+                <div id="loginMessage" class="auth-message alert mb-3" role="alert"></div>
                 <div class="mb-3">
                     <label for="username" class="form-label fw-bold">Username</label>
                     <div class="input-group">
@@ -197,13 +208,47 @@
                         <input id="password" type="password" class="form-control" placeholder="Enter your password" required>
                     </div>
                 </div>
-                <button type="button" class="btn btn-cipher w-100 mb-3" onclick="window.location.href='dashboard.html'">Login to CipherShare</button>
+                <button type="submit" class="btn btn-cipher w-100 mb-3">Login to CipherShare</button>
             </form>
             <div class="demo-note p-3 small mb-3">
-                This GitHub Pages login page is a static frontend preview. The Flask app handles real authentication when deployed on a backend server.
+                Demo mode: login checks accounts saved in this browser through the register page.
             </div>
             <p class="text-center mt-3 text-muted mb-0">New here? <a href="register.html" class="fw-bold text-decoration-none">Create an account</a></p>
         </section>
     </main>
+    <script>
+        const loginForm = document.getElementById('loginForm');
+        const loginMessage = document.getElementById('loginMessage');
+        const rememberedUser = localStorage.getItem('cipherShareCurrentUser');
+
+        if (rememberedUser) {
+            document.getElementById('username').value = rememberedUser;
+        }
+
+        function showMessage(message, type) {
+            loginMessage.textContent = message;
+            loginMessage.className = `auth-message alert alert-${type} show mb-3`;
+        }
+
+        loginForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const users = JSON.parse(localStorage.getItem('cipherShareUsers') || '{}');
+
+            if (!users[username] || users[username].password !== password) {
+                showMessage('Invalid username or password. Register first, then log in.', 'danger');
+                return;
+            }
+
+            localStorage.setItem('cipherShareCurrentUser', username);
+            showMessage('Login successful. Opening dashboard...', 'success');
+
+            setTimeout(() => {
+                window.location.href = 'dashboard.html';
+            }, 700);
+        });
+    </script>
 </body>
 </html>

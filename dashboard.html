@@ -78,6 +78,11 @@
             background: var(--accent);
         }
 
+        .nav-user {
+            color: rgba(255, 255, 255, 0.82);
+            font-weight: 800;
+        }
+
         .brand-mark {
             width: 38px;
             height: 38px;
@@ -402,6 +407,7 @@
                 <span>CipherShare</span>
             </a>
             <div class="nav-actions">
+                <span id="navUser" class="nav-user">Demo user</span>
                 <a href="login.html">Login</a>
                 <a class="nav-cta" href="register.html">Register</a>
             </div>
@@ -632,5 +638,13 @@
             <p class="mb-0 small">&copy; 2026 CipherShare System. Static preview for GitHub Pages.</p>
         </div>
     </footer>
+    <script>
+        const currentUser = localStorage.getItem('cipherShareCurrentUser');
+        const navUser = document.getElementById('navUser');
+
+        if (currentUser && navUser) {
+            navUser.textContent = currentUser;
+        }
+    </script>
 </body>
 </html>
