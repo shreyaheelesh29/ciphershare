@@ -323,6 +323,14 @@
             text-align: center;
         }
 
+        .drop-zone.dragover {
+            border-color: var(--accent);
+            background:
+                linear-gradient(135deg, rgba(19, 168, 125, 0.16), rgba(47, 128, 237, 0.12)),
+                var(--panel-soft);
+            transform: translateY(-1px);
+        }
+
         .drop-icon,
         .file-chip,
         .activity-marker {
@@ -357,6 +365,33 @@
         .table > :not(caption) > * > * {
             background: transparent;
             border-color: var(--line);
+        }
+
+        .empty-state {
+            min-height: 140px;
+            display: grid;
+            place-items: center;
+            color: var(--muted);
+            text-align: center;
+        }
+
+        .demo-toast {
+            position: fixed;
+            right: 18px;
+            bottom: 18px;
+            z-index: 20;
+            max-width: min(360px, calc(100vw - 36px));
+            display: none;
+            padding: 0.85rem 1rem;
+            border-radius: 8px;
+            color: #ffffff;
+            background: #14213d;
+            box-shadow: var(--shadow);
+            font-weight: 800;
+        }
+
+        .demo-toast.show {
+            display: block;
         }
 
         footer {
@@ -421,9 +456,9 @@
                 <h1 class="hero-title">Encrypt, share, and audit every file from one focused vault.</h1>
                 <p>Drop files into CipherShare and keep ownership visible: encrypted uploads, explicit access grants, instant previews, and a clean trail of who touched what.</p>
                 <div class="hero-actions">
-                    <a class="btn-cipher btn-primary-cipher" href="login.html">
+                    <a class="btn-cipher btn-primary-cipher" href="#upload">
                         <i class="fas fa-cloud-arrow-up"></i>
-                        Login to upload
+                        Upload secure file
                     </a>
                     <a class="btn-cipher btn-light-cipher" href="register.html">
                         <i class="fas fa-user-plus"></i>
@@ -432,15 +467,15 @@
                 </div>
                 <div class="metric-strip">
                     <div class="metric-tile">
-                        <strong>12</strong>
+                        <strong id="ownedCount">0</strong>
                         <span>owned files</span>
                     </div>
                     <div class="metric-tile">
-                        <strong>4</strong>
+                        <strong id="sharedCount">0</strong>
                         <span>shared with you</span>
                     </div>
                     <div class="metric-tile">
-                        <strong>18</strong>
+                        <strong id="activityCount">0</strong>
                         <span>recent events</span>
                     </div>
                 </div>
@@ -486,14 +521,15 @@
         </section>
 
         <section id="upload" class="card-panel">
-            <div class="drop-zone">
+            <div id="dropZone" class="drop-zone">
                 <div>
                     <div class="drop-icon mx-auto mb-3">
                         <i class="fas fa-cloud-arrow-up fs-2"></i>
                     </div>
                     <h2 class="h4 fw-bold mb-2">Drop a file to seal it</h2>
-                    <p class="text-muted mb-4">This GitHub Pages preview is static; the Flask app powers real upload, login, encryption, and sharing.</p>
-                    <button class="btn-cipher btn-primary-cipher" type="button">
+                    <p class="text-muted mb-4">Demo mode stores files in this browser only. Use small files for the GitHub Pages preview.</p>
+                    <input id="fileInput" class="d-none" type="file" multiple>
+                    <button id="chooseFileButton" class="btn-cipher btn-primary-cipher" type="button">
                         <i class="fas fa-plus"></i>
                         Choose file
                     </button>
@@ -510,7 +546,7 @@
                     </div>
                     <div class="input-group" style="max-width: 340px;">
                         <span class="input-group-text bg-light border-0"><i class="fas fa-search text-muted"></i></span>
-                        <input type="text" class="form-control bg-light border-0" placeholder="Search file name">
+                        <input id="fileSearch" type="text" class="form-control bg-light border-0" placeholder="Search file name">
                     </div>
                 </div>
                 <div class="table-responsive">
@@ -522,41 +558,7 @@
                                 <th class="text-end">Actions</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <div class="file-chip me-3"><i class="fas fa-file-pdf text-danger"></i></div>
-                                        <div>
-                                            <span class="fw-bold d-block">financial-report.pdf</span>
-                                            <span class="text-muted small">Jun 11, 2026</span>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td><span class="badge rounded-pill text-bg-success">AES-256</span></td>
-                                <td class="text-end">
-                                    <button class="btn btn-sm btn-light" aria-label="Preview"><i class="fas fa-eye text-info"></i></button>
-                                    <button class="btn btn-sm btn-light" aria-label="Download"><i class="fas fa-download text-primary"></i></button>
-                                    <button class="btn btn-sm btn-light" aria-label="Share"><i class="fas fa-link text-success"></i></button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <div class="file-chip me-3"><i class="fas fa-file-image text-warning"></i></div>
-                                        <div>
-                                            <span class="fw-bold d-block">identity-proof.png</span>
-                                            <span class="text-muted small">Jun 10, 2026</span>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td><span class="badge rounded-pill text-bg-success">AES-256</span></td>
-                                <td class="text-end">
-                                    <button class="btn btn-sm btn-light" aria-label="Preview"><i class="fas fa-eye text-info"></i></button>
-                                    <button class="btn btn-sm btn-light" aria-label="Download"><i class="fas fa-download text-primary"></i></button>
-                                    <button class="btn btn-sm btn-light" aria-label="Share"><i class="fas fa-link text-success"></i></button>
-                                </td>
-                            </tr>
+                        <tbody id="filesBody">
                         </tbody>
                     </table>
                 </div>
@@ -567,32 +569,11 @@
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <div>
                             <h2 class="h5 mb-1 fw-bold">Recent activity</h2>
-                            <p class="text-muted mb-0 small">Last 3 events</p>
+                            <p id="activitySubtitle" class="text-muted mb-0 small">Last 0 events</p>
                         </div>
                         <i class="fas fa-clock-rotate-left text-muted"></i>
                     </div>
-                    <div class="d-grid gap-3">
-                        <div class="d-flex gap-3">
-                            <div class="activity-marker"><i class="fas fa-circle-up text-success"></i></div>
-                            <div>
-                                <p class="mb-1 small fw-bold">Uploaded and encrypted financial-report.pdf</p>
-                                <span class="text-muted small">09:42 | Jun 11</span>
-                            </div>
-                        </div>
-                        <div class="d-flex gap-3">
-                            <div class="activity-marker"><i class="fas fa-circle-nodes text-warning"></i></div>
-                            <div>
-                                <p class="mb-1 small fw-bold">Shared identity-proof.png with Alice</p>
-                                <span class="text-muted small">17:20 | Jun 10</span>
-                            </div>
-                        </div>
-                        <div class="d-flex gap-3">
-                            <div class="activity-marker"><i class="fas fa-circle-down text-primary"></i></div>
-                            <div>
-                                <p class="mb-1 small fw-bold">Downloaded signed-contract.docx</p>
-                                <span class="text-muted small">12:14 | Jun 09</span>
-                            </div>
-                        </div>
+                    <div id="activityList" class="d-grid gap-3">
                     </div>
                 </div>
 
@@ -600,27 +581,11 @@
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <div>
                             <h2 class="h5 mb-1 fw-bold">Shared with me</h2>
-                            <p class="text-muted mb-0 small">2 accessible files</p>
+                            <p id="sharedSubtitle" class="text-muted mb-0 small">0 accessible files</p>
                         </div>
                         <span class="badge rounded-pill text-bg-primary">Access</span>
                     </div>
-                    <div class="d-grid gap-3">
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="file-chip text-primary"><i class="fas fa-file-shield"></i></div>
-                            <div class="flex-grow-1">
-                                <h3 class="h6 mb-0 fw-bold">team-vault-notes.txt</h3>
-                                <p class="mb-0 small text-muted">From Alice</p>
-                            </div>
-                            <button class="btn btn-sm btn-light"><i class="fas fa-download text-primary"></i></button>
-                        </div>
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="file-chip text-primary"><i class="fas fa-file-shield"></i></div>
-                            <div class="flex-grow-1">
-                                <h3 class="h6 mb-0 fw-bold">project-keys.csv</h3>
-                                <p class="mb-0 small text-muted">From Bob</p>
-                            </div>
-                            <button class="btn btn-sm btn-light"><i class="fas fa-download text-primary"></i></button>
-                        </div>
+                    <div id="sharedList" class="d-grid gap-3">
                     </div>
                 </div>
             </div>
@@ -638,13 +603,299 @@
             <p class="mb-0 small">&copy; 2026 CipherShare System. Static preview for GitHub Pages.</p>
         </div>
     </footer>
+    <div id="demoToast" class="demo-toast" role="status"></div>
     <script>
         const currentUser = localStorage.getItem('cipherShareCurrentUser');
         const navUser = document.getElementById('navUser');
+        const fileInput = document.getElementById('fileInput');
+        const chooseFileButton = document.getElementById('chooseFileButton');
+        const dropZone = document.getElementById('dropZone');
+        const filesBody = document.getElementById('filesBody');
+        const activityList = document.getElementById('activityList');
+        const sharedList = document.getElementById('sharedList');
+        const fileSearch = document.getElementById('fileSearch');
+        const ownedCount = document.getElementById('ownedCount');
+        const sharedCount = document.getElementById('sharedCount');
+        const activityCount = document.getElementById('activityCount');
+        const activitySubtitle = document.getElementById('activitySubtitle');
+        const sharedSubtitle = document.getElementById('sharedSubtitle');
+        const demoToast = document.getElementById('demoToast');
+        const storagePrefix = 'cipherShareDemo';
+        const demoUser = currentUser || 'Demo user';
 
         if (currentUser && navUser) {
             navUser.textContent = currentUser;
         }
+
+        function key(name) {
+            return `${storagePrefix}:${demoUser}:${name}`;
+        }
+
+        function loadJson(name, fallback) {
+            try {
+                return JSON.parse(localStorage.getItem(key(name)) || JSON.stringify(fallback));
+            } catch {
+                return fallback;
+            }
+        }
+
+        function saveJson(name, value) {
+            localStorage.setItem(key(name), JSON.stringify(value));
+        }
+
+        function showToast(message) {
+            demoToast.textContent = message;
+            demoToast.classList.add('show');
+            setTimeout(() => demoToast.classList.remove('show'), 2600);
+        }
+
+        function formatDate(value) {
+            return new Intl.DateTimeFormat('en', {
+                month: 'short',
+                day: '2-digit',
+                year: 'numeric'
+            }).format(new Date(value));
+        }
+
+        function formatTime(value) {
+            return new Intl.DateTimeFormat('en', {
+                hour: '2-digit',
+                minute: '2-digit'
+            }).format(new Date(value));
+        }
+
+        function fileIcon(name) {
+            const ext = name.split('.').pop().toLowerCase();
+            if (ext === 'pdf') return 'fa-file-pdf text-danger';
+            if (['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp'].includes(ext)) return 'fa-file-image text-warning';
+            if (['xls', 'xlsx', 'csv'].includes(ext)) return 'fa-file-excel text-success';
+            if (['doc', 'docx', 'txt', 'md'].includes(ext)) return 'fa-file-lines text-primary';
+            return 'fa-file-shield text-info';
+        }
+
+        function addActivity(type, details) {
+            const activities = loadJson('activities', []);
+            activities.unshift({
+                id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
+                type,
+                details,
+                createdAt: new Date().toISOString()
+            });
+            saveJson('activities', activities.slice(0, 30));
+        }
+
+        function renderFiles() {
+            const query = fileSearch.value.trim().toLowerCase();
+            const files = loadJson('files', []);
+            const visibleFiles = files.filter(file => file.name.toLowerCase().includes(query));
+
+            if (!visibleFiles.length) {
+                filesBody.innerHTML = `<tr><td colspan="3"><div class="empty-state"><div><i class="fas fa-box-open d-block mb-2 fs-2 opacity-25"></i><strong>No files found.</strong><p class="mb-0 small">Upload a file to store it in this browser.</p></div></div></td></tr>`;
+            } else {
+                filesBody.innerHTML = visibleFiles.map(file => `
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="file-chip me-3"><i class="fas ${fileIcon(file.name)}"></i></div>
+                                <div>
+                                    <span class="fw-bold d-block">${escapeHtml(file.name)}</span>
+                                    <span class="text-muted small">${formatDate(file.createdAt)} | ${formatBytes(file.size)}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="badge rounded-pill text-bg-success">AES-256 demo</span></td>
+                        <td class="text-end">
+                            <button class="btn btn-sm btn-light" onclick="previewFile('${file.id}')" aria-label="Preview"><i class="fas fa-eye text-info"></i></button>
+                            <button class="btn btn-sm btn-light" onclick="downloadFile('${file.id}')" aria-label="Download"><i class="fas fa-download text-primary"></i></button>
+                            <button class="btn btn-sm btn-light" onclick="shareFile('${file.id}')" aria-label="Share"><i class="fas fa-link text-success"></i></button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            ownedCount.textContent = files.length;
+        }
+
+        function renderActivity() {
+            const activities = loadJson('activities', []);
+            activityCount.textContent = activities.length;
+            activitySubtitle.textContent = `Last ${Math.min(activities.length, 5)} events`;
+
+            if (!activities.length) {
+                activityList.innerHTML = `<div class="empty-state"><div><i class="fas fa-wave-square d-block mb-2 fs-2 opacity-25"></i><strong>No activity yet.</strong></div></div>`;
+                return;
+            }
+
+            activityList.innerHTML = activities.slice(0, 5).map(activity => {
+                const icon = activity.type === 'Share'
+                    ? 'fa-circle-nodes text-warning'
+                    : activity.type === 'Download'
+                        ? 'fa-circle-down text-primary'
+                        : 'fa-circle-up text-success';
+                return `
+                    <div class="d-flex gap-3">
+                        <div class="activity-marker"><i class="fas ${icon}"></i></div>
+                        <div>
+                            <p class="mb-1 small fw-bold">${escapeHtml(activity.details)}</p>
+                            <span class="text-muted small">${formatTime(activity.createdAt)} | ${formatDate(activity.createdAt)}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderShared() {
+            const shared = loadJson('shared', []);
+            sharedCount.textContent = shared.length;
+            sharedSubtitle.textContent = `${shared.length} accessible files`;
+
+            if (!shared.length) {
+                sharedList.innerHTML = `<div class="empty-state"><div><i class="fas fa-share-nodes d-block mb-2 fs-2 opacity-25"></i><strong>No shared files yet.</strong><p class="mb-0 small">Use the link action on a file to create a demo share.</p></div></div>`;
+                return;
+            }
+
+            sharedList.innerHTML = shared.map(item => `
+                <div class="d-flex align-items-center gap-3">
+                    <div class="file-chip text-primary"><i class="fas ${fileIcon(item.name)}"></i></div>
+                    <div class="flex-grow-1 overflow-hidden">
+                        <h3 class="h6 mb-0 fw-bold text-truncate">${escapeHtml(item.name)}</h3>
+                        <p class="mb-0 small text-muted">Shared with ${escapeHtml(item.recipient)}</p>
+                    </div>
+                    <button class="btn btn-sm btn-light" onclick="copyShareText('${item.id}')"><i class="fas fa-copy text-primary"></i></button>
+                </div>
+            `).join('');
+        }
+
+        function renderAll() {
+            renderFiles();
+            renderActivity();
+            renderShared();
+        }
+
+        function escapeHtml(value) {
+            return String(value)
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#039;');
+        }
+
+        function formatBytes(bytes) {
+            if (bytes < 1024) return `${bytes} B`;
+            if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+            return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+        }
+
+        function readFileAsDataUrl(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        async function handleFiles(fileList) {
+            const files = loadJson('files', []);
+            for (const file of Array.from(fileList)) {
+                if (file.size > 900000) {
+                    showToast(`${file.name} is too large for browser demo storage.`);
+                    continue;
+                }
+
+                const dataUrl = await readFileAsDataUrl(file);
+                files.unshift({
+                    id: crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${file.name}`,
+                    name: file.name,
+                    size: file.size,
+                    type: file.type || 'application/octet-stream',
+                    dataUrl,
+                    createdAt: new Date().toISOString()
+                });
+                addActivity('Upload', `Uploaded and encrypted ${file.name}`);
+            }
+
+            try {
+                saveJson('files', files);
+                showToast('File saved in this browser.');
+            } catch {
+                showToast('Browser storage is full. Try a smaller file.');
+            }
+            renderAll();
+        }
+
+        function findFile(fileId) {
+            return loadJson('files', []).find(file => file.id === fileId);
+        }
+
+        function previewFile(fileId) {
+            const file = findFile(fileId);
+            if (!file) return;
+            window.open(file.dataUrl, '_blank');
+            addActivity('Download', `Previewed ${file.name}`);
+            renderActivity();
+        }
+
+        function downloadFile(fileId) {
+            const file = findFile(fileId);
+            if (!file) return;
+            const link = document.createElement('a');
+            link.href = file.dataUrl;
+            link.download = file.name;
+            link.click();
+            addActivity('Download', `Downloaded ${file.name}`);
+            renderActivity();
+        }
+
+        function shareFile(fileId) {
+            const file = findFile(fileId);
+            if (!file) return;
+            const recipient = prompt('Share with which demo user?', 'Alice');
+            if (!recipient) return;
+
+            const shared = loadJson('shared', []);
+            shared.unshift({
+                id: crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${file.name}`,
+                fileId,
+                name: file.name,
+                recipient,
+                createdAt: new Date().toISOString()
+            });
+            saveJson('shared', shared);
+            addActivity('Share', `Shared ${file.name} with ${recipient}`);
+            showToast(`Shared ${file.name} with ${recipient}.`);
+            renderAll();
+        }
+
+        function copyShareText(sharedId) {
+            const shared = loadJson('shared', []).find(item => item.id === sharedId);
+            if (!shared) return;
+            navigator.clipboard?.writeText(`CipherShare demo shared file: ${shared.name}`).catch(() => {});
+            showToast('Demo share text copied.');
+        }
+
+        chooseFileButton.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', () => handleFiles(fileInput.files));
+        fileSearch.addEventListener('input', renderFiles);
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, event => {
+                event.preventDefault();
+                event.stopPropagation();
+            });
+        });
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => dropZone.classList.add('dragover'));
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => dropZone.classList.remove('dragover'));
+        });
+
+        dropZone.addEventListener('drop', event => handleFiles(event.dataTransfer.files));
+        renderAll();
     </script>
 </body>
 </html>
