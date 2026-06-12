@@ -4,253 +4,273 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CipherShare | Encrypted File System</title>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Bootstrap 5.3 -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- FontAwesome 6.5.0 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         :root {
-            --primary-color: #0f172a; /* Dark Blue */
-            --accent-color: #16a34a;  /* Cyber Green */
-            --bg-color: #f4f7fb;
-            --card-bg: #ffffff;
-            --text-main: #1e293b;
-            --text-muted: #64748b;
+            --ink: #14213d;
+            --panel: #ffffff;
+            --panel-soft: #f6f8fb;
+            --line: #dbe3ee;
+            --muted: #64748b;
+            --accent: #13a87d;
+            --accent-strong: #087f63;
+            --sky: #2f80ed;
+            --violet: #7657d9;
+            --amber: #f59f00;
+            --danger: #e5484d;
+            --bg: #edf3f8;
+            --shadow: 0 18px 55px rgba(20, 33, 61, 0.12);
+            --shadow-sm: 0 10px 28px rgba(20, 33, 61, 0.08);
+            --radius: 8px;
         }
 
-        /* Dark Mode overrides */
         [data-theme="dark"] {
-            --primary-color: #1e293b;
-            --accent-color: #22c55e;
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --text-main: #f1f5f9;
-            --text-muted: #94a3b8;
+            --ink: #edf6ff;
+            --panel: #111c2e;
+            --panel-soft: #17263d;
+            --line: #263954;
+            --muted: #9eb0c7;
+            --accent: #2dd4a6;
+            --accent-strong: #49e6bd;
+            --sky: #74b8ff;
+            --violet: #a696ff;
+            --amber: #ffd166;
+            --danger: #ff8a8a;
+            --bg: #09111f;
+            --shadow: 0 18px 55px rgba(0, 0, 0, 0.38);
+            --shadow-sm: 0 10px 28px rgba(0, 0, 0, 0.24);
         }
 
-        [data-theme="dark"] .text-muted {
-            color: var(--text-muted) !important;
+        * {
+            letter-spacing: 0;
         }
-
-        [data-theme="dark"] .text-dark {
-            color: var(--text-main) !important;
-        }
-
-        [data-theme="dark"] .bg-light {
-            background-color: #334155 !important;
-            color: var(--text-main) !important;
-        }
-
-        [data-theme="dark"] .input-group-text {
-            background-color: #334155 !important;
-            color: var(--text-muted) !important;
-            border: none;
-        }
-
-        [data-theme="dark"] .form-control {
-            background-color: #334155 !important;
-            color: var(--text-main) !important;
-            border: none;
-        }
-
-        [data-theme="dark"] .form-control::placeholder {
-            color: var(--text-muted) !important;
-            opacity: 0.7;
-        }
-
-        [data-theme="dark"] .modal-content {
-            background-color: var(--card-bg);
-            color: var(--text-main);
-        }
-
-        [data-theme="dark"] .table {
-            color: var(--text-main);
-        }
-
-        [data-theme="dark"] .list-group-item {
-            background-color: transparent;
-            color: var(--text-main);
-        }
-
-        [data-theme="dark"] .btn-light {
-            background-color: #334155;
-            color: var(--text-main);
-            border: none;
-        }
-
-        [data-theme="dark"] .btn-light:hover {
-            background-color: #475569;
-            color: #ffffff;
-        }
-
-        [data-theme="dark"] .dropdown-menu {
-            background-color: var(--card-bg);
-            border: 1px solid #334155;
-        }
-
-        [data-theme="dark"] .dropdown-item {
-            color: var(--text-main);
-        }
-
-        [data-theme="dark"] .dropdown-item:hover {
-            background-color: #334155;
-            color: var(--accent-color);
-        }
-
-        [data-theme="dark"] h1, [data-theme="dark"] h2, [data-theme="dark"] h3, 
-        [data-theme="dark"] h4, [data-theme="dark"] h5, [data-theme="dark"] h6 {
-            color: var(--text-main);
-        }
-
-        [data-theme="dark"] .card {
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        [data-theme="dark"] .badge.bg-light {
-            background-color: #334155 !important;
-            color: var(--text-main) !important;
-        }
-
-        [data-theme="dark"] .bg-primary.bg-opacity-10 { background-color: rgba(79, 70, 229, 0.2) !important; }
-        [data-theme="dark"] .bg-success.bg-opacity-10 { background-color: rgba(22, 163, 74, 0.2) !important; }
-        [data-theme="dark"] .bg-info.bg-opacity-10 { background-color: rgba(14, 165, 233, 0.2) !important; }
-
-        [data-theme="dark"] .text-primary { color: #818cf8 !important; }
-        [data-theme="dark"] .text-success { color: #4ade80 !important; }
-        [data-theme="dark"] .text-info { color: #7dd3fc !important; }
-        [data-theme="dark"] .text-warning { color: #fbbf24 !important; }
-        [data-theme="dark"] .text-danger { color: #f87171 !important; }
 
         body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
             min-height: 100vh;
+            margin: 0;
             display: flex;
             flex-direction: column;
-            transition: background-color 0.3s, color 0.3s;
+            font-family: "Plus Jakarta Sans", sans-serif;
+            color: var(--ink);
+            background:
+                linear-gradient(120deg, rgba(19, 168, 125, 0.08), transparent 32%),
+                linear-gradient(240deg, rgba(47, 128, 237, 0.12), transparent 36%),
+                var(--bg);
+            transition: background-color 0.25s ease, color 0.25s ease;
         }
-        
-        /* Dropzone styling */
-        #drop-zone {
-            border: 2px dashed #cbd5e1;
-            transition: all 0.3s ease;
-        }
-        #drop-zone.dragover {
-            border-color: var(--accent-color);
-            background-color: rgba(22, 163, 74, 0.05);
-            transform: scale(1.01);
+
+        a {
+            color: var(--sky);
         }
 
         .navbar {
-            background-color: var(--primary-color) !important;
-            padding: 1rem 0;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            background: rgba(12, 24, 42, 0.94) !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 12px 40px rgba(3, 7, 18, 0.18);
+            backdrop-filter: blur(14px);
         }
 
         .navbar-brand {
-            font-weight: 700;
             color: #ffffff !important;
-            font-size: 1.5rem;
             display: flex;
             align-items: center;
             gap: 0.75rem;
+            font-size: 1.35rem;
+            font-weight: 800;
         }
 
-        .navbar-brand i {
-            color: var(--accent-color);
+        .brand-mark {
+            width: 38px;
+            height: 38px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            color: #ffffff;
+            background: linear-gradient(135deg, var(--accent), var(--sky));
+            box-shadow: 0 10px 30px rgba(19, 168, 125, 0.34);
         }
 
         .nav-link {
-            color: rgba(255,255,255,0.8) !important;
-            font-weight: 500;
-            transition: all 0.2s;
+            color: rgba(255, 255, 255, 0.8) !important;
+            font-weight: 700;
         }
 
-        .nav-link:hover {
-            color: var(--accent-color) !important;
+        .nav-link:hover,
+        .nav-link:focus {
+            color: #ffffff !important;
         }
 
-        .container {
-            max-width: 1100px;
-            margin-top: 2rem;
+        .theme-button {
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        main.container {
+            width: min(1180px, calc(100% - 32px));
+            max-width: none;
+            margin-top: 1.5rem;
             flex: 1;
         }
 
-        .card {
-            border: none;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            background-color: var(--card-bg);
-            transition: all 0.3s ease;
+        .card,
+        .dropdown-menu,
+        .modal-content {
+            background-color: var(--panel);
+            color: var(--ink);
+            border: 1px solid var(--line) !important;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
         }
 
         .card:hover {
-            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            box-shadow: var(--shadow);
+        }
+
+        .bg-light,
+        .form-control,
+        .form-select,
+        .input-group-text {
+            background-color: var(--panel-soft) !important;
+            color: var(--ink) !important;
+            border-color: var(--line) !important;
+        }
+
+        .form-control::placeholder {
+            color: var(--muted);
+        }
+
+        .text-muted {
+            color: var(--muted) !important;
+        }
+
+        .text-dark {
+            color: var(--ink) !important;
+        }
+
+        .btn {
+            border-radius: 8px;
+            font-weight: 800;
         }
 
         .btn-success {
-            background-color: var(--accent-color);
-            border-color: var(--accent-color);
-            border-radius: 8px;
-            padding: 0.6rem 1.5rem;
-            font-weight: 600;
+            background-color: var(--accent);
+            border-color: var(--accent);
+            color: #ffffff;
         }
 
         .btn-success:hover {
-            background-color: #15803d;
-            border-color: #15803d;
+            background-color: var(--accent-strong);
+            border-color: var(--accent-strong);
+            color: #ffffff;
             transform: translateY(-1px);
         }
 
         .btn-primary {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-            border-radius: 8px;
+            background-color: var(--ink);
+            border-color: var(--ink);
+        }
+
+        [data-theme="dark"] .btn-primary {
+            background-color: var(--sky);
+            border-color: var(--sky);
+            color: #07101e;
+        }
+
+        .btn-light,
+        .btn-outline-secondary {
+            background-color: var(--panel-soft);
+            border-color: var(--line);
+            color: var(--ink);
+        }
+
+        .table {
+            color: var(--ink);
+        }
+
+        .table > :not(caption) > * > * {
+            background-color: transparent;
+            border-color: var(--line);
+        }
+
+        .list-group-item {
+            background-color: transparent;
+            color: var(--ink);
         }
 
         .alert {
-            border-radius: 10px;
-            border: none;
-            font-weight: 500;
-        }
-
-        .alert-info { background-color: #e0f2fe; color: #0369a1; }
-        .alert-success { background-color: #dcfce7; color: #166534; }
-        .alert-danger { background-color: #fee2e2; color: #991b1b; }
-
-        footer {
-            background-color: var(--primary-color);
-            color: #94a3b8;
-            padding: 2rem 0;
-            margin-top: 4rem;
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            font-weight: 700;
+            box-shadow: var(--shadow-sm);
         }
 
         .security-badge {
-            font-size: 0.75rem;
-            padding: 0.35rem 0.65rem;
-            border-radius: 20px;
-            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            min-height: 26px;
+            padding: 0.32rem 0.62rem;
+            border-radius: 999px;
+            font-size: 0.72rem;
+            font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 0.025em;
         }
 
-        .badge-aes { background-color: #dcfce7; color: #15803d; }
-        .badge-rsa { background-color: #e0f2fe; color: #0369a1; }
+        .badge-aes {
+            background-color: rgba(19, 168, 125, 0.14);
+            color: var(--accent-strong);
+        }
+
+        .badge-rsa {
+            background-color: rgba(47, 128, 237, 0.13);
+            color: var(--sky);
+        }
+
+        .x-small {
+            font-size: 0.76rem;
+        }
 
         .fade-in {
-            animation: fadeIn 0.4s ease-out;
+            animation: fadeIn 0.38s ease-out;
+        }
+
+        footer {
+            margin-top: 4rem;
+            padding: 2rem 0;
+            color: rgba(255, 255, 255, 0.68);
+            background: #0c182a;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 767.98px) {
+            main.container {
+                width: min(100% - 20px, 1180px);
+                margin-top: 1rem;
+            }
+
+            .navbar-brand {
+                font-size: 1.1rem;
+            }
         }
     </style>
     <script>
-        // Theme Management
         function setTheme(theme) {
             document.documentElement.setAttribute('data-theme', theme);
             localStorage.setItem('theme', theme);
@@ -266,32 +286,32 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            setTheme(savedTheme);
+            setTheme(localStorage.getItem('theme') || 'light');
         });
     </script>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark">
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
         <div class="container-fluid px-lg-5">
             <a class="navbar-brand" href="{{ url_for('file.index') }}">
-                <i class="fas fa-user-shield"></i> CipherShare
+                <span class="brand-mark"><i class="fas fa-user-shield"></i></span>
+                <span>CipherShare</span>
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <div class="navbar-nav ms-auto align-items-center">
-                    <button class="btn btn-link text-white me-3 p-0 border-0" onclick="toggleTheme()" title="Toggle Dark Mode">
+                <div class="navbar-nav ms-auto align-items-lg-center gap-lg-2 pt-3 pt-lg-0">
+                    <button class="theme-button me-lg-2" onclick="toggleTheme()" title="Toggle dark mode" aria-label="Toggle dark mode">
                         <i id="theme-icon" class="fas fa-moon"></i>
                     </button>
                     {% if current_user.is_authenticated %}
                         <div class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
-                                <div class="bg-success rounded-circle me-2" style="width: 8px; height: 8px;"></div>
+                                <span class="d-inline-block rounded-circle me-2" style="width: 8px; height: 8px; background: var(--accent);"></span>
                                 {{ current_user.username }}
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg mt-3 rounded-3">
+                            <ul class="dropdown-menu dropdown-menu-end mt-3">
                                 <li><a class="dropdown-item py-2" href="{{ url_for('auth.profile') }}"><i class="fas fa-user-circle me-2 text-primary"></i> My Profile</a></li>
                                 <li><a class="dropdown-item py-2" href="{{ url_for('auth.activity_history') }}"><i class="fas fa-history me-2 text-info"></i> Activity Logs</a></li>
                                 {% if current_user.is_admin %}
@@ -302,14 +322,15 @@
                             </ul>
                         </div>
                     {% else %}
-                        <a class="nav-link px-3" href="{{ url_for('auth.login') }}">Login</a>
-                        <a class="btn btn-success ms-lg-2 px-4" href="{{ url_for('auth.register') }}">Register</a>
+                        <a class="nav-link px-lg-3" href="{{ url_for('auth.login') }}">Login</a>
+                        <a class="btn btn-success px-4" href="{{ url_for('auth.register') }}">Register</a>
                     {% endif %}
                 </div>
             </div>
         </div>
     </nav>
-    <div class="container">
+
+    <main class="container">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
@@ -322,23 +343,23 @@
                             <i class="fas fa-info-circle me-2"></i>
                         {% endif %}
                         {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 {% endfor %}
             {% endif %}
         {% endwith %}
         {% block content %}{% endblock %}
-    </div>
+    </main>
 
     <footer>
         <div class="container text-center">
             <h5 class="text-white fw-bold mb-2">CipherShare</h5>
-            <p class="mb-3 small">Secure File Sharing System • End-to-End Encrypted</p>
-            <div class="d-flex justify-content-center gap-3 mb-4">
-                <span class="security-badge badge-aes"><i class="fas fa-lock me-1"></i> AES-256</span>
-                <span class="security-badge badge-rsa"><i class="fas fa-key me-1"></i> RSA-2048</span>
+            <p class="mb-3 small">Secure file sharing with encrypted storage and auditable access.</p>
+            <div class="d-flex justify-content-center gap-3 mb-4 flex-wrap">
+                <span class="security-badge badge-aes"><i class="fas fa-lock"></i> AES-256</span>
+                <span class="security-badge badge-rsa"><i class="fas fa-key"></i> RSA-2048</span>
             </div>
-            <p class="mb-0 x-small">&copy; 2026 CipherShare System. Built with Flask + Cryptography.</p>
+            <p class="mb-0 x-small">&copy; 2026 CipherShare System. Built with Flask and Cryptography.</p>
         </div>
     </footer>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
