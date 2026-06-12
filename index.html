@@ -56,6 +56,28 @@
             text-decoration: none;
         }
 
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .nav-actions a {
+            color: rgba(255, 255, 255, 0.82);
+            font-weight: 800;
+            text-decoration: none;
+        }
+
+        .nav-actions .nav-cta {
+            min-height: 38px;
+            display: inline-flex;
+            align-items: center;
+            padding: 0.45rem 0.9rem;
+            border-radius: 8px;
+            color: #ffffff;
+            background: var(--accent);
+        }
+
         .brand-mark {
             width: 38px;
             height: 38px;
@@ -375,10 +397,14 @@
 <body>
     <nav class="navbar navbar-dark sticky-top">
         <div class="container-fluid px-lg-5 py-2">
-            <a class="navbar-brand" href="#">
+            <a class="navbar-brand" href="index.html">
                 <span class="brand-mark"><i class="fas fa-user-shield"></i></span>
                 <span>CipherShare</span>
             </a>
+            <div class="nav-actions">
+                <a href="login.html">Login</a>
+                <a class="nav-cta" href="register.html">Register</a>
+            </div>
         </div>
     </nav>
 
@@ -389,13 +415,13 @@
                 <h1 class="hero-title">Encrypt, share, and audit every file from one focused vault.</h1>
                 <p>Drop files into CipherShare and keep ownership visible: encrypted uploads, explicit access grants, instant previews, and a clean trail of who touched what.</p>
                 <div class="hero-actions">
-                    <a class="btn-cipher btn-primary-cipher" href="#upload">
+                    <a class="btn-cipher btn-primary-cipher" href="login.html">
                         <i class="fas fa-cloud-arrow-up"></i>
-                        Upload secure file
+                        Login to upload
                     </a>
-                    <a class="btn-cipher btn-light-cipher" href="#activity">
-                        <i class="fas fa-clock-rotate-left"></i>
-                        Review activity
+                    <a class="btn-cipher btn-light-cipher" href="register.html">
+                        <i class="fas fa-user-plus"></i>
+                        Create account
                     </a>
                 </div>
                 <div class="metric-strip">
